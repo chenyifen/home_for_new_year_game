@@ -10,7 +10,7 @@ class BoardState {
 
   void removePerson(int x, int y) {
     if (board.grid[x][y] is Person) {
-      board.grid[x][y] = null;
+      return board.removePerson(x, y);
     }
   }
 

@@ -14,6 +14,10 @@ class Board {
     grid[x][y] = person;
   }
 
+    void removePerson(int x, int y) {
+    grid[x][y] = null;
+  }
+
   void placeObstacle(int x, int y, Obstacle obstacle) {
     grid[x][y] = obstacle;
   }

@@ -62,7 +62,8 @@ flutter:
     - assets/images/car_next.png
     - assets/images/waiting_icon.png
     - assets/
-
+    - assets/images/
+    - assets/images/next_car_green.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

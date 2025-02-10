@@ -22,15 +22,12 @@ class InitialScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CarView(
-                    totalSeats: 5,
-                    currentSeats: 3,
-                    waitingPersons: 0,
-                  ),
+                  CarView(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
-                      onPressed: () => context.read<MainController>().resetGame(),
+                      onPressed: () =>
+                          context.read<MainController>().resetGame(),
                       child: Text('重置游戏'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF35257E),

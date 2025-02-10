@@ -44,6 +44,9 @@ class MainController with ChangeNotifier {
     if (gameState.carQueueState.currentCar != null) {
       final currentCar = gameState.carQueueState.currentCar!;
       if (_canPersonMove(person)) {
+        gameState.boardState.removePerson(person.x, person.y);
+        notifyListeners();
+
         if (person.color == currentCar.color) {
           animatePersonToCar(person, currentCar);
         } else {
@@ -101,7 +104,6 @@ class MainController with ChangeNotifier {
       scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
 
       car.addPerson(person);
-      gameState.boardState.removePerson(person.x, person.y);
       if (car.seatCount == 0) {
         gameState.carQueueState.moveToNextCar();
         _animateCarDepartAndArrive();
@@ -115,14 +117,15 @@ class MainController with ChangeNotifier {
       final snackBar = SnackBar(content: Text("${person.color} 小人进入候车区"));
       scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
 
-      gameState.waitingArea.addPerson(person);
-      gameState.boardState.removePerson(person.x, person.y);
       notifyListeners();
     });
   }
-
+   
   void _animateCarDepartAndArrive() {
-    final snackBar = SnackBar(content: Text("车辆驶离，下一辆车进场"));
-    scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      final snackBar = SnackBar(content: Text("车辆驶离，下一辆车进场"));
+      scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
+      notifyListeners();
+    });
   }
 }

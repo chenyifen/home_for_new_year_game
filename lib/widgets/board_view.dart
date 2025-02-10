@@ -82,6 +82,10 @@ class BoardView extends StatelessWidget {
                         color: Color(0xFF35257E),
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      child: controller.gameState.waitingArea.waitingPersons.length > (index - 1)
+                          ? Image.asset(
+                              'assets/images/person_${controller.gameState.waitingArea.waitingPersons[index - 1].color}.png')
+                          : Container(),
                     );
                   }
                 }),
@@ -108,7 +112,9 @@ class BoardView extends StatelessWidget {
 
                 return Container(
                   decoration: BoxDecoration(
-                    color: isEvenCell ? Color(0xFF35257E) : Color(0xFF281C79),
+                    color: isEvenCell
+                        ? Color(0xFF35257E)
+                        : Color(0xFF281C79),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: item == null
