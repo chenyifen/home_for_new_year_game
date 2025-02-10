@@ -9,25 +9,40 @@ class InitialScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('回家过年'),
         centerTitle: true,
+        backgroundColor: Color(0xFF3421AC),
       ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        return Column(
-          children: [
-            CarView(
-              totalSeats: 5,
-              currentSeats: 3,
-              waitingPersons: 0,
+      backgroundColor: Color(0xFF3421AC),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CarView(
+                    totalSeats: 5,
+                    currentSeats: 3,
+                    waitingPersons: 0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Text('候车'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF35257E), // 背景颜色
+                      ),
+                    ),
+                  ),
+                  BoardView(),
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(onPressed: () {}, child: Text('候车')),
-            ),
-            Expanded(
-              child: BoardView(),
-            ),
-          ],
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

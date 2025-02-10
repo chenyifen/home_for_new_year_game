@@ -5,35 +5,66 @@ class CarView extends StatelessWidget {
   final int currentSeats;
   final int waitingPersons;
 
-  CarView({required this.totalSeats, required this.currentSeats, required this.waitingPersons});
+  CarView({
+    required this.totalSeats,
+    required this.currentSeats,
+    required this.waitingPersons,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final carSize = MediaQuery.of(context).size.width > 600
-        ? 300.0
-        : MediaQuery.of(context).size.width / 2;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final carWidth = screenWidth > 600 ? 300.0 : screenWidth / 2;
+    final carHeight = carWidth / 2;
 
-    return Column(
+    return Stack(
       children: [
-        Container(
-          width: carSize,
-          height: carSize / 2,
-          child: Image.asset(
-            'assets/images/car_current.png',
-            fit: BoxFit.contain,
+        Positioned(
+          left: 4,
+          top: 8,
+          child: Column(
+            children: [
+              Container(
+                width: carWidth / 3,
+                height: carHeight,
+                child: Image.asset(
+                  'assets/images/car_next.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '候车人数: $waitingPersons',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
           ),
         ),
-        Text('当前座位: ${currentSeats}/${totalSeats}'),
-        SizedBox(height: 16),
-        Container(
-          width: carSize,
-          height: carSize / 2,
-          child: Image.asset(
-            'assets/images/car_next.png',
-            fit: BoxFit.contain,
+        Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            width: carWidth,
+            height: carHeight,
+            child: Stack(
+              children: [
+                Image.asset(
+                  'assets/images/car_current.png',
+                  fit: BoxFit.contain,
+                ),
+                Center(
+                  child: Text(
+                    '$currentSeats/$totalSeats',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        Text('候车人数: $waitingPersons'),
       ],
     );
   }
