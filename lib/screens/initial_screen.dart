@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:home_for_new_year_game/widgets/board_view.dart';
 import 'package:home_for_new_year_game/widgets/car_view.dart';
+import 'package:provider/provider.dart';
+import 'package:home_for_new_year_game/controllers/main_controller.dart';
 
 class InitialScreen extends StatelessWidget {
   @override
@@ -16,8 +18,7 @@ class InitialScreen extends StatelessWidget {
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(minHeight: constraints.maxHeight),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -29,10 +30,10 @@ class InitialScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
-                      onPressed: () {},
-                      child: Text('候车'),
+                      onPressed: () => context.read<MainController>().resetGame(),
+                      child: Text('重置游戏'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF35257E), // 背景颜色
+                        backgroundColor: Color(0xFF35257E),
                       ),
                     ),
                   ),

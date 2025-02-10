@@ -1,14 +1,18 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:home_for_new_year_game/models/game_object.dart';
+import 'package:home_for_new_year_game/widgets/person_view.dart';
+import 'package:home_for_new_year_game/widgets/obstacle_view.dart';
 import 'package:home_for_new_year_game/models/board.dart';
 import 'package:home_for_new_year_game/models/person.dart';
 import 'package:home_for_new_year_game/models/obstacle.dart';
+import 'package:home_for_new_year_game/controllers/main_controller.dart';
+import 'package:provider/provider.dart';
 
 class BoardView extends StatelessWidget {
-  final Board board = Board();
+  final Board board;
 
-  BoardView() {
+  BoardView() : board = Board() {
     _initializeBoard();
   }
 
@@ -37,6 +41,7 @@ class BoardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<MainController>(context);
     final gridSize = MediaQuery.of(context).size.width > 600
         ? 600.0
         : MediaQuery.of(context).size.width - 40;
@@ -74,9 +79,7 @@ class BoardView extends StatelessWidget {
                       height: cellSize,
                       margin: EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: (index % 2 == 0)
-                            ? Color(0xFF35257E)
-                            : Color(0xFF281C79),
+                        color: Color(0xFF35257E),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     );
@@ -105,26 +108,24 @@ class BoardView extends StatelessWidget {
 
                 return Container(
                   decoration: BoxDecoration(
-                    color: isEvenCell
-                        ? Color(0xFF35257E)
-                        : Color(0xFF281C79),
+                    color: isEvenCell ? Color(0xFF35257E) : Color(0xFF281C79),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: item == null
                       ? Container()
                       : item is Person
-                          ? Image.asset(
-                              item.imagePath,
-                              width: cellSize,
-                              height: cellSize,
-                              fit: BoxFit.contain,
+                          ? PersonView(
+                              person: item,
+                              onTap: () {
+                                controller.handlePersonClick(item);
+                              },
                             )
                           : item is Obstacle
-                              ? Image.asset(
-                                  item.imagePath,
-                                  width: cellSize,
-                                  height: cellSize,
-                                  fit: BoxFit.contain,
+                              ? ObstacleView(
+                                  obstacle: item,
+                                  onTap: () {
+                                    controller.handleObstacleClick(item);
+                                  },
                                 )
                               : Container(),
                 );
