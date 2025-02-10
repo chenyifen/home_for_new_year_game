@@ -1,5 +1,9 @@
 import 'game_object.dart';
 
 class Obstacle extends GameObject {
-  Obstacle(int x, int y) : super(x, y);
+  final String imagePath;
+
+  Obstacle(int x, int y)
+      : imagePath = 'assets/images/obstacle.png',
+        super(x, y);
 }
