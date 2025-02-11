@@ -7,6 +7,9 @@ import 'package:home_for_new_year_game/controllers/main_controller.dart';
 class InitialScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final carWidth = screenWidth > 600 ? 300.0 : screenWidth / 2;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('回家过年'),
@@ -22,7 +25,10 @@ class InitialScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CarView(),
+                  Container(
+                    width: carWidth * 1.5,
+                    child: CarView(),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(

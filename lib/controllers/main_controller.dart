@@ -16,6 +16,8 @@ class MainController with ChangeNotifier {
   final BuildContext context;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
+  double carViewOffset = 0.0;
+
   MainController(this.context, this.scaffoldMessengerKey) {
     GameInfo.loadGameInfo();
     resetGame();
@@ -24,22 +26,42 @@ class MainController with ChangeNotifier {
   void resetGame() {
     final board = Board();
     _initializeBoard(board, GameInfo.difficulty);
-    final carQueue = [
-      Car(0, 0, 'red', 4),
-      Car(0, 0, 'green', 5),
-      Car(0, 0, 'blue', 3),
-      Car(0, 0, 'yellow', 5),
-      Car(0, 0, 'red', 3),
-      Car(0, 0, 'green', 5),
-      Car(0, 0, 'blue', 4),
-      Car(0, 0, 'yellow', 3)
-    ];
+
+    // 计算每种颜色的小人总数
+    final colorCounts = {'red': 0, 'green': 0, 'blue': 0, 'yellow': 0};
+    for (var row in board.grid) {
+      for (var cell in row) {
+        if (cell is Person) {
+          colorCounts[cell.color] = colorCounts[cell.color]! + 1;
+        }
+      }
+    }
+
+    // 根据小人总数生成车队
+    final carQueue = <Car>[];
+    final random = Random();
+    colorCounts.forEach((color, count) {
+      while (count > 0) {
+        final seats = min(count, random.nextInt(4) + 2); // 每辆车2-5个座位
+        carQueue.add(Car(0, 0, color, seats));
+        count -= seats;
+      }
+    });
+
+    // 打乱车队顺序
+    carQueue.shuffle();
 
     gameState = GameState(
       BoardState(board),
       CarQueueState(carQueue),
       WaitingArea(),
     );
+
+    // 打印carQueue信息
+    print('CarQueue:');
+    for (var car in carQueue) {
+      print('Car color: ${car.color}, seats: ${car.seatCount}');
+    }
 
     print('Game reset with initial setup.');
     notifyListeners();
@@ -50,8 +72,7 @@ class MainController with ChangeNotifier {
     if (gameState.carQueueState.currentCar != null) {
       final currentCar = gameState.carQueueState.currentCar!;
       if (_canPersonMove(person)) {
-        
-        gameState.boardState.removePerson(person.x, person.y);  
+        gameState.boardState.removePerson(person.x, person.y);
         notifyListeners(); // 确保立即更新UI
 
         if (person.color == currentCar.color) {
@@ -65,7 +86,7 @@ class MainController with ChangeNotifier {
             _showGameOver();
           }
         }
-      notifyListeners();
+        notifyListeners();
       } else {
         _showMessageAtPersonPosition(person, "我被挡住啦");
       }
@@ -74,7 +95,7 @@ class MainController with ChangeNotifier {
     print("after place, get obj in pos = ${obj}");
   }
 
-    // 判断小人是否可移动
+  // 判断小人是否可移动
   bool _canPersonMove(Person person) {
     final board = gameState.boardState.board;
     final List<int> dx = [0, 1, 0, -1];
@@ -87,7 +108,9 @@ class MainController with ChangeNotifier {
     }
 
     // 广度优先搜索（BFS）
-    List<List<int>> queue = [[person.x, person.y]];
+    List<List<int>> queue = [
+      [person.x, person.y]
+    ];
     Set<List<int>> visited = {queue[0]};
 
     while (queue.isNotEmpty) {
@@ -100,10 +123,14 @@ class MainController with ChangeNotifier {
         int newY = y + dy[direction];
 
         // 检查新位置是否在棋盘范围内，并且不是在墙边或者障碍物、小人
-        if (newX >= 0 && newX < board.width && newY >= 0 && newY < board.height) {
+        if (newX >= 0 &&
+            newX < board.width &&
+            newY >= 0 &&
+            newY < board.height) {
           if (board.getObjectAt(newX, newY) == null) {
             if (newY == 0) {
-              print('Found a path to the first row from ($person.x, $person.y).');
+              print(
+                  'Found a path to the first row from ($person.x, $person.y).');
               return true;
             }
 
@@ -119,7 +146,6 @@ class MainController with ChangeNotifier {
     return false;
   }
 
-
   void handleObstacleClick(Obstacle obstacle) {
     print('Obstacle Clicked: at (${obstacle.x}, ${obstacle.y})');
     _showMessage("障碍物不可移动");
@@ -132,7 +158,8 @@ class MainController with ChangeNotifier {
   }
 
   void _showMessageAtPersonPosition(Person person, String message) {
-    final snackBar = SnackBar(content: Text(message), behavior: SnackBarBehavior.floating);
+    final snackBar =
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating);
     scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
     print(message);
   }
@@ -152,6 +179,10 @@ class MainController with ChangeNotifier {
         _animateCarDepartAndArrive();
       }
 
+      // 打印当前车信息
+      print(
+          'Current Car: color: ${car.color}, remaining seats: ${car.seatCount}');
+
       print('${person.color} person moved to the car.');
       notifyListeners(); // 确保刷新UI
     });
@@ -169,11 +200,13 @@ class MainController with ChangeNotifier {
 
   void _animateCarDepartAndArrive() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      shiftCarViewRight(100); // 调用shiftCarViewRight来更新offset
+
       final snackBar = SnackBar(content: Text("车辆驶离，下一辆车进场"));
       scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
-      
+
       print('The car has departed, and the next car has arrived.');
-      notifyListeners();  // 确保刷新UI
+      notifyListeners(); // 确保刷新UI
     });
   }
 
@@ -199,5 +232,10 @@ class MainController with ChangeNotifier {
         }
       }
     }
+  }
+
+  void shiftCarViewRight(double carWidth) {
+    carViewOffset += carWidth;
+    notifyListeners();
   }
 }
