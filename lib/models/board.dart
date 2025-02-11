@@ -10,19 +10,25 @@ class Board {
   Board({this.width = 6, this.height = 6})
       : grid = List.generate(6, (_) => List.filled(6, null));
 
+
   void placePerson(int x, int y, Person person) {
     grid[x][y] = person;
-  }
-
-    void removePerson(int x, int y) {
-    grid[x][y] = null;
+    print("Placed person at ($x, $y) with color ${person.color}");
   }
 
   void placeObstacle(int x, int y, Obstacle obstacle) {
     grid[x][y] = obstacle;
+    print("Placed obstacle at ($x, $y)");
   }
 
   GameObject? getObjectAt(int x, int y) {
     return grid[x][y];
+  }
+
+  void removePerson(int x, int y) {
+    if (grid[x][y] is Person) {
+      grid[x][y] = null;
+      print("Removed person at ($x, $y)");
+    }
   }
 }

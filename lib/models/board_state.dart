@@ -9,8 +9,11 @@ class BoardState {
   BoardState(this.board);
 
   void removePerson(int x, int y) {
+    print('removePerson');
     if (board.grid[x][y] is Person) {
-      return board.removePerson(x, y);
+      board.removePerson(x, y);
+          print('board.removePerson(x, y);');
+
     }
   }
 

@@ -10,38 +10,12 @@ import 'package:home_for_new_year_game/controllers/main_controller.dart';
 import 'package:provider/provider.dart';
 
 class BoardView extends StatelessWidget {
-  final Board board;
-
-  BoardView() : board = Board() {
-    _initializeBoard();
-  }
-
-  void _initializeBoard() {
-    final random = Random();
-    final colors = ['red', 'green', 'blue', 'yellow'];
-
-    for (int i = 0; i < 4; i++) {
-      int x, y;
-      do {
-        x = random.nextInt(6);
-        y = random.nextInt(6);
-      } while (board.getObjectAt(x, y) != null);
-      board.placeObstacle(x, y, Obstacle(x, y));
-    }
-
-    for (int x = 0; x < 6; x++) {
-      for (int y = 0; y < 6; y++) {
-        if (board.getObjectAt(x, y) == null) {
-          final color = colors[random.nextInt(colors.length)];
-          board.placePerson(x, y, Person(x, y, color));
-        }
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+
     final controller = Provider.of<MainController>(context);
+    final board = controller.gameState.boardState.board;  // Obtain the modified board
     final gridSize = MediaQuery.of(context).size.width > 600
         ? 600.0
         : MediaQuery.of(context).size.width - 40;
