@@ -30,6 +30,7 @@ class MainController with ChangeNotifier {
 
   Future<void> _initializeController() async {
     GameInfo.loadGameInfo();
+    resetGame();
     await loadPresets(); // 等待预设加载完成
     if (presets.isNotEmpty) {
       _initializeWithPreset(presets[presetUsageCount]);
