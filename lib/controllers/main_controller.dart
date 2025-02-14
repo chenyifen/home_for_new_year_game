@@ -10,20 +10,157 @@ import 'package:home_for_new_year_game/models/waiting_area.dart';
 import 'package:home_for_new_year_game/models/board_state.dart';
 import 'package:home_for_new_year_game/models/car_queue_state.dart';
 import 'package:home_for_new_year_game/utils/game_info.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 
 class MainController with ChangeNotifier {
   late GameState gameState;
   final BuildContext context;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
-
+  int presetUsageCount = 0;
+  List<dynamic> presets = [];
   double carViewOffset = 0.0;
+  final board = Board();
+  final carQueue = <Car>[];
+
 
   MainController(this.context, this.scaffoldMessengerKey) {
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
     GameInfo.loadGameInfo();
-    resetGame();
+    await loadPresets(); // 等待预设加载完成
+    if (presets.isNotEmpty) {
+      _initializeWithPreset(presets[presetUsageCount]);
+      presetUsageCount++;
+    } else {
+      _initializeBoardAuto();
+    }
+    notifyListeners(); // 确保UI更新
+  }
+
+  Future<void> loadPresets() async {
+    final String response = await rootBundle.loadString('assets/presets.json');
+    final data = await json.decode(response);
+    presets = data['presets'];
+
+    // 添加打印语句以输出加载的预设信息
+    print('Loaded Presets:');
+    for (var i = 0; i < presets.length; i++) {
+      print('Preset $i:');
+      print('Board: ${presets[i]['board']}');
+      print('CarQueue: ${presets[i]['carQueue']}');
+    }
   }
 
   void resetGame() {
+    if (presetUsageCount < presets.length) {
+      _initializeWithPreset(presets[presetUsageCount]);
+      presetUsageCount++;
+    } else {
+      _initializeBoardAuto();
+    }
+
+
+    gameState = GameState(
+      BoardState(board),
+      CarQueueState(carQueue),
+      WaitingArea(),
+    );
+
+
+    // Notify listeners
+    notifyListeners();
+  }
+
+  void _initializeWithPreset(Map<String, dynamic> preset) {
+
+    // 定义颜色映射
+    final colorMap = {
+      'r': 'red',
+      'y': 'yellow',
+      'b': 'blue',
+      'g': 'green',
+    };
+
+    for (int y = 0; y < preset['board'].length; y++) {
+      for (int x = 0; x < preset['board'][y].length; x++) {
+        final cell = preset['board'][y][x];
+        if (colorMap.containsKey(cell)) {
+          board.placePerson(x, y, Person(x, y, colorMap[cell]!));
+        } else if (cell == 'o') {
+          board.placeObstacle(x, y, Obstacle(x, y));
+        }
+      }
+    }
+
+    final rawCarList = preset['carQueue'];
+
+    for (var carInfo in rawCarList) {
+      final colorCode = carInfo[0];
+      final color = colorMap[colorCode] ?? 'unknown'; // 使用映射转换颜色代码
+      final seats = carInfo[1];
+      carQueue.add(Car(0, 0, color, seats));
+    }
+
+     gameState = GameState(
+      BoardState(board),
+      CarQueueState(carQueue),
+      WaitingArea(),
+    );
+
+    // Print carQueue information for debugging
+    print('CarQueue from Preset:');
+    for (var car in carQueue) {
+      print('Car color: ${car.color}, seats: ${car.seatCount}');
+    }
+
+    print('Game reset with preset setup.');
+  }
+
+  void _initializeBoardAuto() {
+    _initializeBoard(board, GameInfo.difficulty);
+
+    // Calculate totals for each color
+    final colorCounts = {'red': 0, 'green': 0, 'blue': 0, 'yellow': 0};
+    for (var row in board.grid) {
+      for (var cell in row) {
+        if (cell is Person) {
+          colorCounts[cell.color] = colorCounts[cell.color]! + 1;
+        }
+      }
+    }
+
+    // Generate car queue based on person counts
+    final random = Random();
+    colorCounts.forEach((color, count) {
+      while (count > 0) {
+        final seats = min(count, random.nextInt(4) + 2); // Cars have 2-5 seats
+        carQueue.add(Car(0, 0, color, seats));
+        count -= seats;
+      }
+    });
+
+    // Shuffle car queue
+    carQueue.shuffle();
+
+    gameState = GameState(
+      BoardState(board),
+      CarQueueState(carQueue),
+      WaitingArea(),
+    );
+
+    // Print carQueue information for debugging
+    print('CarQueue:');
+    for (var car in carQueue) {
+      print('Car color: ${car.color}, seats: ${car.seatCount}');
+    }
+
+    print('Game reset with initial setup.');
+  }
+
+  void resetGame2() {
     final board = Board();
     _initializeBoard(board, GameInfo.difficulty);
 
@@ -200,7 +337,7 @@ class MainController with ChangeNotifier {
 
   void _animateCarDepartAndArrive() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      shiftCarViewRight(100); // 调用shiftCarViewRight来更新offset
+      shiftCarViewRight(86); // 调用shiftCarViewRight来更新offset
 
       final snackBar = SnackBar(content: Text("车辆驶离，下一辆车进场"));
       scaffoldMessengerKey.currentState!.showSnackBar(snackBar);

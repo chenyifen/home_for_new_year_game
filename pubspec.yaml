@@ -61,7 +61,7 @@ flutter:
     - assets/images/car_current.png
     - assets/images/car_next.png
     - assets/images/waiting_icon.png
-    - assets/
+    - assets/presets.json
     - assets/images/
     - assets/images/next_car_green.png
   # The following line ensures that the Material Icons font is
