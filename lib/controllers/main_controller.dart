@@ -314,6 +314,8 @@ class MainController with ChangeNotifier {
       if (car.seatCount == 0) {
         gameState.carQueueState.moveToNextCar();
         _animateCarDepartAndArrive();
+        checkWaitingAreaPerson();
+        
       }
 
       // 打印当前车信息
@@ -323,6 +325,19 @@ class MainController with ChangeNotifier {
       print('${person.color} person moved to the car.');
       notifyListeners(); // 确保刷新UI
     });
+  }
+
+  void checkWaitingAreaPerson(){
+          Car? nextCar = gameState.carQueueState.currentCar;
+      if (nextCar != null) {
+        List<Person> waitingPersons = gameState.waitingArea.removePersonsByColor(nextCar.color);
+        for (Person waitingPerson in waitingPersons) {
+          animatePersonToCar(waitingPerson, nextCar);
+          if (nextCar.seatCount == 0) {
+            break;
+          }
+        }
+      }
   }
 
   void animatePersonToWaitingArea(Person person) {

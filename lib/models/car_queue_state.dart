@@ -8,7 +8,7 @@ class CarQueueState {
     if (carQueue.isNotEmpty) {
       currentCar = carQueue.removeAt(0);
     }
-    print('1. init  current car = ${currentCar}');
+    print('1. init  current car = ${currentCar!.color}');
 
   }
 
@@ -18,7 +18,7 @@ class CarQueueState {
     } else {
       currentCar = null;
     }
-    print('update current car = ${currentCar}');
+    print('update current car = ${currentCar!.color}');
   }
 
   bool isQueueEmpty() {

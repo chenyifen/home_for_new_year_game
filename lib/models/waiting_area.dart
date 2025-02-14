@@ -12,4 +12,10 @@ class WaitingArea {
   }
 
   List<Person> get waitingPersons => _waitingPersons;
+
+  List<Person> removePersonsByColor(String color) {
+    List<Person> matchingPersons = _waitingPersons.where((p) => p.color == color).toList();
+    _waitingPersons.removeWhere((p) => p.color == color);
+    return matchingPersons;
+  }
 }
