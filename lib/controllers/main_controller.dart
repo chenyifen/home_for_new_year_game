@@ -22,6 +22,12 @@ class MainController with ChangeNotifier {
   double carViewOffset = 0.0;
   final board = Board();
   final carQueue = <Car>[];
+  bool isGameOver = false; // 添加游戏状态标志
+  final MODE_PRESET_ONLY = "presetOnly";
+  final MODE_PRESET_FIRST = "presetFirst";
+
+  final gameMode = "presetOnly";
+  bool isInitialized = false; // 添加初始化标志
 
 
   MainController(this.context, this.scaffoldMessengerKey) {
@@ -30,14 +36,8 @@ class MainController with ChangeNotifier {
 
   Future<void> _initializeController() async {
     GameInfo.loadGameInfo();
-    resetGame();
-    await loadPresets(); // 等待预设加载完成
-    if (presets.isNotEmpty) {
-      _initializeWithPreset(presets[presetUsageCount]);
-      presetUsageCount++;
-    } else {
-      _initializeBoardAuto();
-    }
+    await resetGame();
+    isInitialized = true; // 标记初始化完成
     notifyListeners(); // 确保UI更新
   }
 
@@ -55,14 +55,21 @@ class MainController with ChangeNotifier {
     }
   }
 
-  void resetGame() {
-    if (presetUsageCount < presets.length) {
-      _initializeWithPreset(presets[presetUsageCount]);
-      presetUsageCount++;
+  Future<void> resetGame() async {
+    isGameOver = false; // 重置游戏状态
+    carViewOffset = 0;
+    if(gameMode == MODE_PRESET_ONLY){
+      await loadPresets(); // 等待预设加载完成
+      if(presetUsageCount >= presets.length){
+        presetUsageCount = presetUsageCount % presets.length;
+      }
+      if (presets.isNotEmpty) {
+        _initializeWithPreset(presets[presetUsageCount]);
+        presetUsageCount++;
+      }
     } else {
       _initializeBoardAuto();
     }
-
 
     gameState = GameState(
       BoardState(board),
@@ -104,13 +111,6 @@ class MainController with ChangeNotifier {
       final seats = carInfo[1];
       carQueue.add(Car(0, 0, color, seats));
     }
-
-     gameState = GameState(
-      BoardState(board),
-      CarQueueState(carQueue),
-      WaitingArea(),
-    );
-
     // Print carQueue information for debugging
     print('CarQueue from Preset:');
     for (var car in carQueue) {
@@ -145,13 +145,7 @@ class MainController with ChangeNotifier {
 
     // Shuffle car queue
     carQueue.shuffle();
-
-    gameState = GameState(
-      BoardState(board),
-      CarQueueState(carQueue),
-      WaitingArea(),
-    );
-
+    
     // Print carQueue information for debugging
     print('CarQueue:');
     for (var car in carQueue) {
@@ -206,6 +200,7 @@ class MainController with ChangeNotifier {
   }
 
   void handlePersonClick(Person person) {
+    if (isGameOver) return; // 如果游戏结束，不处理点击事件
     print('Person Clicked: ${person.color} at (${person.x}, ${person.y})');
     if (gameState.carQueueState.currentCar != null) {
       final currentCar = gameState.carQueueState.currentCar!;
@@ -285,6 +280,7 @@ class MainController with ChangeNotifier {
   }
 
   void handleObstacleClick(Obstacle obstacle) {
+    if (isGameOver) return; // 如果游戏结束，不处理点击事件
     print('Obstacle Clicked: at (${obstacle.x}, ${obstacle.y})');
     _showMessage("障碍物不可移动");
   }
@@ -304,6 +300,8 @@ class MainController with ChangeNotifier {
 
   void _showGameOver() {
     print("Game Over!");
+    isGameOver = true;
+    notifyListeners();
   }
 
   void animatePersonToCar(Person person, Car car) {

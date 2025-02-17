@@ -4,7 +4,7 @@ class WaitingArea {
   List<Person> _waitingPersons = [];
 
   bool addPerson(Person person) {
-    if (_waitingPersons.length < 3) {
+    if (_waitingPersons.length < 2) {
       _waitingPersons.add(person);
       return true;
     }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:home_for_new_year_game/controllers/main_controller.dart';
 
-class SingleCarView extends StatelessWidget {
+class NextCarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -17,14 +17,14 @@ class SingleCarView extends StatelessWidget {
         final totalCarWidth = carQueue.length * carWidth;
 
         return SizedBox(
-          width: carWidth * 15, // 确保Stack有一个明确的宽度
+          width: carWidth, // 确保Stack有一个明确的宽度
           height: carHeight, // 确保Stack有一个明确的高度
           child: Stack(
             children: carQueue.asMap().entries.map((entry) {
               int index = entry.key;
               var car = entry.value;
               return AnimatedPositioned(
-                duration: Duration(milliseconds: 500),
+                duration: Duration(milliseconds: 2000),
                 left: controller.carViewOffset +
                     (carWidth * 10 - totalCarWidth) +
                     index * carWidth,
