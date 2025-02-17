@@ -23,6 +23,7 @@ class MainController with ChangeNotifier {
   final board = Board();
   final carQueue = <Car>[];
   bool isGameOver = false; // 添加游戏状态标志
+  bool isGameWin = false; // 添加游戏胜利标志
   final MODE_PRESET_ONLY = "presetOnly";
   final MODE_PRESET_FIRST = "presetFirst";
 
@@ -57,6 +58,7 @@ class MainController with ChangeNotifier {
 
   Future<void> resetGame() async {
     isGameOver = false; // 重置游戏状态
+    isGameWin = false; // 重置游戏胜利状态
     carViewOffset = 0;
     if(gameMode == MODE_PRESET_ONLY){
       await loadPresets(); // 等待预设加载完成
@@ -312,6 +314,10 @@ class MainController with ChangeNotifier {
 
       car.addPerson(person);
       if (car.seatCount == 0) {
+        if (gameState.carQueueState.carQueue.isEmpty) { // Check for game win here
+          _showGameWin();
+          return; // Exit to prevent further actions after game win
+        }
         gameState.carQueueState.moveToNextCar();
         _animateCarDepartAndArrive();
         checkWaitingAreaPerson();
@@ -388,6 +394,12 @@ class MainController with ChangeNotifier {
 
   void shiftCarViewRight(double carWidth) {
     carViewOffset += carWidth;
+    notifyListeners();
+  }
+
+  void _showGameWin() {
+    print("Game Win!");
+    isGameWin = true;
     notifyListeners();
   }
 }
