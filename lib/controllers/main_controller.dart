@@ -228,6 +228,7 @@ class MainController with ChangeNotifier {
     print("after place, get obj in pos = ${obj}");
   }
 
+
   // 判断小人是否可移动
   bool _canPersonMove(Person person) {
     final board = gameState.boardState.board;

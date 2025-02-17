@@ -32,3 +32,11 @@ class CarQueueState {
     return carQueue.isEmpty && currentCar == null;
   }
 }
+
+
+
+
+
+
+
+
